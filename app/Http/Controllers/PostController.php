@@ -12,7 +12,11 @@ class PostController extends Controller
      */
     public function index()
     {
-        return Post::all();
+        $posts = Post::all();
+        //view('posts.index', compact('posts'));
+
+        return view('posts.index', compact('posts'));
+
     }
 
 
@@ -21,7 +25,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -29,15 +33,24 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'author' => 'required|string|max:255',
+        ]);
        
         $novo_post = Post::create([
             'title' => $request->input('title'),
             'content' => $request->input('content'),
             'author' => $request->input('author')
         ]);
+
         $novo_post->save();
 
-        return $novo_post;
+
+        return redirect()->route('posts.index')
+        ->with('success', 'Post created successfully.');
     }
 
     /**
@@ -45,7 +58,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return view("posts.show", compact('post'));
     }
 
     /**
@@ -53,7 +66,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        return view('posts.edit', compact('post'));
     }
 
     /**
@@ -61,7 +74,21 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        //$post->title = $request->input('title');
+        //$post->content = $request->input('content');
+        //$post->author = $request->input('author');
+        //$post->save();
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'author' => 'required|string|max:255',
+        ]);
+
+        $post->update($request->all());
+
+        return redirect()->route('posts.index')
+        ->with('success', 'Post edited successfully.');
     }
 
     /**
@@ -69,6 +96,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return response()->json(['message' => 'Post deleted successfully']);
     }
 }
